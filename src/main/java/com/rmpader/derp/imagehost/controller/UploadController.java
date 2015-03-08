@@ -6,21 +6,23 @@ import java.io.FileOutputStream;
 import java.util.UUID;
 
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.rmpader.derp.imagehost.config.WebConfig;
 
 @RestController
+@RequestMapping(value = "/file")
 public class UploadController {
 
-	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public @ResponseBody String handleFileUpload(
-			@RequestParam("file") MultipartFile file) {
+	@RequestMapping(method = RequestMethod.POST)
+	public String handleFileUpload(@RequestParam("file") MultipartFile file) {
 		if (!file.isEmpty()) {
 			try {
 
@@ -40,6 +42,19 @@ public class UploadController {
 			}
 		} else {
 			return "File was empty.";
+		}
+	}
+
+	@RequestMapping(value = "/{fileName:.+}", method = RequestMethod.DELETE)
+	public ResponseEntity<String> handleFileDelete(
+			@PathVariable("fileName") String fileName) {
+		String path = "/home/reynald/public/" + fileName;
+		File file = new File(path);
+		if (file.exists() && file.canWrite()) {
+			file.delete();
+			return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+		} else {
+			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
 		}
 	}
 
