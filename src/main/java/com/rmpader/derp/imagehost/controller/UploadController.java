@@ -3,11 +3,13 @@ package com.rmpader.derp.imagehost.controller;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.URI;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,8 +42,9 @@ public class UploadController {
                 stream.close();
 
                 String imageURL = imageHostProperties.getBaseURL() + WebConfig.getResourceBaseURL() + fileName;
-
-                return new ResponseEntity<String>(imageURL, HttpStatus.OK);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setLocation(new URI(imageURL));
+                return new ResponseEntity<String>(headers, HttpStatus.CREATED);
             } else {
                 return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
             }
